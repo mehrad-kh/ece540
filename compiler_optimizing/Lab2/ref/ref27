@@ -1,0 +1,54 @@
+loopcfg func 13
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 5 0 1 2 3 4
+	successors 2 2 11
+	predecessors 1 0
+block 2
+	instrs 7 5 6 7 8 9 10 11
+	successors 2 3 5
+	predecessors 2 1 9
+block 3
+	instrs 4 12 13 14 15
+	successors 1 9
+	predecessors 1 2
+block 4
+	instrs 1 16
+	successors 1 8
+	predecessors 0
+block 5
+	instrs 4 17 18 19 20
+	successors 2 6 7
+	predecessors 1 2
+block 6
+	instrs 4 21 22 23 24
+	successors 1 9
+	predecessors 1 5
+block 7
+	instrs 1 25
+	successors 1 8
+	predecessors 1 5
+block 8
+	instrs 1 26
+	successors 1 9
+	predecessors 2 4 7
+block 9
+	instrs 4 27 28 29 30
+	successors 2 2 10
+	predecessors 3 3 6 8
+block 10
+	instrs 1 31
+	successors 1 11
+	predecessors 1 9
+block 11
+	instrs 3 32 33 34
+	successors 1 12
+	predecessors 2 1 10
+block 12
+	instrs 0
+	successors 0
+	predecessors 1 11
+natural_loops func 0

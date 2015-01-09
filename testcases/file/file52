@@ -1,0 +1,53 @@
+expressions main 3
+expr 1 5
+expr 2 49
+expr 3 75
+
+eval_ae_sets main 14
+eval_ae 0 000
+eval_ae 1 000
+eval_ae 2 100
+eval_ae 3 000
+eval_ae 4 000
+eval_ae 5 000
+eval_ae 6 000
+eval_ae 7 011
+eval_ae 8 000
+eval_ae 9 000
+eval_ae 10 000
+eval_ae 11 000
+eval_ae 12 000
+eval_ae 13 000
+
+kill_ae_sets main 14
+kill_ae 0 000
+kill_ae 1 100
+kill_ae 2 000
+kill_ae 3 000
+kill_ae 4 000
+kill_ae 5 100
+kill_ae 6 100
+kill_ae 7 011
+kill_ae 8 100
+kill_ae 9 100
+kill_ae 10 000
+kill_ae 11 100
+kill_ae 12 000
+kill_ae 13 000
+
+available_exprs main 14
+avail_exprs_out 0 000
+avail_exprs_out 1 000
+avail_exprs_out 2 100
+avail_exprs_out 3 100
+avail_exprs_out 4 100
+avail_exprs_out 5 000
+avail_exprs_out 6 000
+avail_exprs_out 7 011
+avail_exprs_out 8 011
+avail_exprs_out 9 011
+avail_exprs_out 10 011
+avail_exprs_out 11 011
+avail_exprs_out 12 011
+avail_exprs_out 13 011
+

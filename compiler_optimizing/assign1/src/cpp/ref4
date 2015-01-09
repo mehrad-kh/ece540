@@ -1,0 +1,94 @@
+cfg fibonaci 6
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 3 0 1 2
+	successors 2 2 3
+	predecessors 1 0
+block 2
+	instrs 2 3 4
+	successors 1 4
+	predecessors 1 1
+block 3
+	instrs 13 5 6 7 8 9 10 11 12 13 14 15 16 17
+	successors 1 4
+	predecessors 1 1
+block 4
+	instrs 2 18 19
+	successors 1 5
+	predecessors 2 2 3
+block 5
+	instrs 0
+	successors 0
+	predecessors 1 4
+idominators fibonaci 6
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom 1
+block 3
+	idom 1
+block 4
+	idom 1
+block 5
+	idom 4
+cfg loop_with_cflow 9
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 2 0 1
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 6 2 3 4 5 6 7
+	successors 2 3 4
+	predecessors 2 1 6
+block 3
+	instrs 5 8 9 10 11 12
+	successors 1 5
+	predecessors 1 2
+block 4
+	instrs 5 13 14 15 16 17
+	successors 1 5
+	predecessors 1 2
+block 5
+	instrs 1 18
+	successors 1 6
+	predecessors 2 3 4
+block 6
+	instrs 4 19 20 21 22
+	successors 2 2 7
+	predecessors 1 5
+block 7
+	instrs 4 23 24 25 26
+	successors 1 8
+	predecessors 1 6
+block 8
+	instrs 0
+	successors 0
+	predecessors 1 7
+idominators loop_with_cflow 9
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom 1
+block 3
+	idom 2
+block 4
+	idom 2
+block 5
+	idom 2
+block 6
+	idom 5
+block 7
+	idom 6
+block 8
+	idom 7

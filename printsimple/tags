@@ -1,0 +1,8 @@
+Mmain.cc	main.cc	/^main (int argc, char *argv[])$/
+Mtest	test.c	/^int main () {return 0;}$/
+do_procedure	doproc.c	/^do_procedure (simple_instr *inlist, char *proc_nam/
+fprint_immed	print.c	/^fprint_immed (FILE *fd, simple_immed *v)$/
+fprint_instr	print.c	/^fprint_instr (FILE *fd, simple_instr *s)$/
+fprint_reg	print.c	/^fprint_reg (FILE *fd, simple_reg *r)$/
+fprint_type	print.c	/^fprint_type (FILE *fd, simple_type *t)$/
+usage	main.cc	/^usage (char *progname)$/

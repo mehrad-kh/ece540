@@ -1,0 +1,60 @@
+cfg main 3
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 4 0 1 2 3
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 0
+	successors 0
+	predecessors 1 1
+idominators main 3
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom 1
+cfg foo 3
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 4 0 1 2 3
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 0
+	successors 0
+	predecessors 1 1
+idominators foo 3
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom 1
+cfg bar 3
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 7 0 1 2 3 4 5 6
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 0
+	successors 0
+	predecessors 1 1
+idominators bar 3
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom 1

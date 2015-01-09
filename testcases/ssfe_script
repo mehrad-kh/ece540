@@ -1,0 +1,10 @@
+#!/bin/sh
+# This is a comment
+
+cd /homes/k/khishman/mehrad/testcases
+
+
+for i in {1..56}
+do
+   ssfe t$i.c
+done

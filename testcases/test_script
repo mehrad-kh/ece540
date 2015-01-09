@@ -1,0 +1,40 @@
+#!/bin/sh
+# This is a comment
+
+cd /homes/m/moham356/540Stuff/testcases
+
+echo "*****************STARTING*****************"
+
+for i in {1..56}
+do
+	echo "STARTING TEST $i"
+  ../lab4/assign4/hw4 t$i.tmp > file/file$i 
+  ../assign4Ref t$i.tmp > ref/ref$i
+
+  diff -b file/file$i ref/ref$i
+
+  echo "ENDING TEST $i"
+done
+
+
+echo "*****************END*****************"
+
+
+
+cd /homes/m/moham356/540Stuff/test4
+
+echo "*****************STARTING THE FINAL TEST*****************"
+
+for i in {1..15}
+do
+	echo "STARTING TEST $i"
+  ../lab4/assign4/hw4 t$i.tmp > file/file$i 
+  ../assign4Ref t$i.tmp > ref/ref$i
+
+  diff -b file/file$i ref/ref$i
+
+  echo "ENDING TEST $i"
+done
+
+
+echo "*****************END FINAL TEST*****************"

@@ -1,0 +1,26 @@
+cfg main 4
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 2 0 1
+	successors 1 3
+	predecessors 1 0
+block 2
+	instrs 2 2 3
+	successors 1 3
+	predecessors 0
+block 3
+	instrs 0
+	successors 0
+	predecessors 2 1 2
+idominators main 4
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom
+block 3
+	idom 1

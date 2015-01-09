@@ -1,0 +1,222 @@
+loopcfg main 45
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 4 0 1 2 3
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 1 4
+	successors 1 3
+	predecessors 1 1
+block 3
+	instrs 3 5 6 7
+	successors 1 4
+	predecessors 2 2 10
+block 4
+	instrs 1 8
+	successors 1 5
+	predecessors 1 3
+block 5
+	instrs 11 9 10 11 12 13 14 15 16 17 18 19
+	successors 2 6 7
+	predecessors 2 4 8
+block 6
+	instrs 3 20 21 22
+	successors 1 7
+	predecessors 1 5
+block 7
+	instrs 9 23 24 25 26 27 28 29 30 31
+	successors 1 8
+	predecessors 2 5 6
+block 8
+	instrs 7 32 33 34 35 36 37 38
+	successors 2 5 9
+	predecessors 1 7
+block 9
+	instrs 1 39
+	successors 1 10
+	predecessors 1 8
+block 10
+	instrs 7 40 41 42 43 44 45 46
+	successors 2 3 11
+	predecessors 1 9
+block 11
+	instrs 3 47 48 49
+	successors 1 12
+	predecessors 1 10
+block 12
+	instrs 1 50
+	successors 1 13
+	predecessors 1 11
+block 13
+	instrs 3 51 52 53
+	successors 1 14
+	predecessors 2 12 26
+block 14
+	instrs 1 54
+	successors 1 15
+	predecessors 1 13
+block 15
+	instrs 3 55 56 57
+	successors 1 16
+	predecessors 2 14 24
+block 16
+	instrs 1 58
+	successors 1 17
+	predecessors 1 15
+block 17
+	instrs 3 59 60 61
+	successors 1 18
+	predecessors 2 16 22
+block 18
+	instrs 1 62
+	successors 1 19
+	predecessors 1 17
+block 19
+	instrs 65 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127
+	successors 1 20
+	predecessors 2 18 20
+block 20
+	instrs 7 128 129 130 131 132 133 134
+	successors 2 19 21
+	predecessors 1 19
+block 21
+	instrs 1 135
+	successors 1 22
+	predecessors 1 20
+block 22
+	instrs 7 136 137 138 139 140 141 142
+	successors 2 17 23
+	predecessors 1 21
+block 23
+	instrs 1 143
+	successors 1 24
+	predecessors 1 22
+block 24
+	instrs 7 144 145 146 147 148 149 150
+	successors 2 15 25
+	predecessors 1 23
+block 25
+	instrs 1 151
+	successors 1 26
+	predecessors 1 24
+block 26
+	instrs 7 152 153 154 155 156 157 158
+	successors 2 13 27
+	predecessors 1 25
+block 27
+	instrs 8 159 160 161 162 163 164 165 166
+	successors 1 28
+	predecessors 1 26
+block 28
+	instrs 1 167
+	successors 1 29
+	predecessors 1 27
+block 29
+	instrs 3 168 169 170
+	successors 1 30
+	predecessors 2 28 42
+block 30
+	instrs 1 171
+	successors 1 31
+	predecessors 1 29
+block 31
+	instrs 3 172 173 174
+	successors 1 32
+	predecessors 2 30 40
+block 32
+	instrs 1 175
+	successors 1 33
+	predecessors 1 31
+block 33
+	instrs 3 176 177 178
+	successors 1 34
+	predecessors 2 32 38
+block 34
+	instrs 1 179
+	successors 1 35
+	predecessors 1 33
+block 35
+	instrs 65 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243 244
+	successors 1 36
+	predecessors 2 34 36
+block 36
+	instrs 7 245 246 247 248 249 250 251
+	successors 2 35 37
+	predecessors 1 35
+block 37
+	instrs 1 252
+	successors 1 38
+	predecessors 1 36
+block 38
+	instrs 7 253 254 255 256 257 258 259
+	successors 2 33 39
+	predecessors 1 37
+block 39
+	instrs 1 260
+	successors 1 40
+	predecessors 1 38
+block 40
+	instrs 7 261 262 263 264 265 266 267
+	successors 2 31 41
+	predecessors 1 39
+block 41
+	instrs 12 268 269 270 271 272 273 274 275 276 277 278 279
+	successors 1 42
+	predecessors 1 40
+block 42
+	instrs 7 280 281 282 283 284 285 286
+	successors 2 29 43
+	predecessors 1 41
+block 43
+	instrs 8 287 288 289 290 291 292 293 294
+	successors 1 44
+	predecessors 1 42
+block 44
+	instrs 0
+	successors 0
+	predecessors 1 43
+natural_loops main 10
+natloop 0
+	backedge 3 10
+	preheader 2
+	loop_blocks 3 4 5 6 7 8 9 10
+natloop 1
+	backedge 5 8
+	preheader 4
+	loop_blocks 5 6 7 8
+natloop 2
+	backedge 13 26
+	preheader 12
+	loop_blocks 13 14 15 16 17 18 19 20 21 22 23 24 25 26
+natloop 3
+	backedge 15 24
+	preheader 14
+	loop_blocks 15 16 17 18 19 20 21 22 23 24
+natloop 4
+	backedge 17 22
+	preheader 16
+	loop_blocks 17 18 19 20 21 22
+natloop 5
+	backedge 19 20
+	preheader 18
+	loop_blocks 19 20
+natloop 6
+	backedge 29 42
+	preheader 28
+	loop_blocks 29 30 31 32 33 34 35 36 37 38 39 40 41 42
+natloop 7
+	backedge 31 40
+	preheader 30
+	loop_blocks 31 32 33 34 35 36 37 38 39 40
+natloop 8
+	backedge 33 38
+	preheader 32
+	loop_blocks 33 34 35 36 37 38
+natloop 9
+	backedge 35 36
+	preheader 34
+	loop_blocks 35 36

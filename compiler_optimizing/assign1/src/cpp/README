@@ -1,0 +1,6 @@
+COURSE: ECE540 Optimizing Compilers
+ASSIGNMET 1: Control Flow Analysis
+Name: Mehrad Mohammadi Khalesi Fard
+Submission date: Monday, 20 January 2014
+
+The program is implemented in completely object oriented approach. It Consists of 4 classes "program", "procedure", "cfg" and "basicblk" in order of top down prespective. Program class has a list of procedure where each single procedure has a control flow graph (cfg). Each cfg has a vertexlist that is list of basicblk objects that are identified within the procedure. Each basicblk has number of members including its number, its first and last instruction number, immidiate dominator and three lists for keeping track of its successors, predeccessors and dominators. 

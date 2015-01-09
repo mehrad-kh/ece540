@@ -1,0 +1,91 @@
+expressions ae_test 3
+expr 1 10
+expr 2 12
+expr 3 14
+
+eval_ae_sets ae_test 21
+eval_ae 0 000
+eval_ae 1 111
+eval_ae 2 000
+eval_ae 3 000
+eval_ae 4 111
+eval_ae 5 111
+eval_ae 6 111
+eval_ae 7 000
+eval_ae 8 111
+eval_ae 9 000
+eval_ae 10 111
+eval_ae 11 000
+eval_ae 12 000
+eval_ae 13 000
+eval_ae 14 000
+eval_ae 15 000
+eval_ae 16 111
+eval_ae 17 000
+eval_ae 18 111
+eval_ae 19 111
+eval_ae 20 000
+
+kill_ae_sets ae_test 21
+kill_ae 0 000
+kill_ae 1 111
+kill_ae 2 000
+kill_ae 3 000
+kill_ae 4 000
+kill_ae 5 000
+kill_ae 6 000
+kill_ae 7 000
+kill_ae 8 000
+kill_ae 9 000
+kill_ae 10 111
+kill_ae 11 000
+kill_ae 12 111
+kill_ae 13 000
+kill_ae 14 000
+kill_ae 15 000
+kill_ae 16 000
+kill_ae 17 101
+kill_ae 18 000
+kill_ae 19 000
+kill_ae 20 000
+
+available_exprs ae_test 21
+avail_exprs_out 0 000
+avail_exprs_out 1 111
+avail_exprs_out 2 111
+avail_exprs_out 3 111
+avail_exprs_out 4 111
+avail_exprs_out 5 111
+avail_exprs_out 6 111
+avail_exprs_out 7 111
+avail_exprs_out 8 111
+avail_exprs_out 9 111
+avail_exprs_out 10 111
+avail_exprs_out 11 111
+avail_exprs_out 12 000
+avail_exprs_out 13 000
+avail_exprs_out 14 000
+avail_exprs_out 15 000
+avail_exprs_out 16 111
+avail_exprs_out 17 000
+avail_exprs_out 18 111
+avail_exprs_out 19 111
+avail_exprs_out 20 111
+
+expressions main 0
+
+eval_ae_sets main 3
+eval_ae 0 
+eval_ae 1 
+eval_ae 2 
+
+kill_ae_sets main 3
+kill_ae 0 
+kill_ae 1 
+kill_ae 2 
+
+available_exprs main 3
+avail_exprs_out 0 
+avail_exprs_out 1 
+avail_exprs_out 2 
+

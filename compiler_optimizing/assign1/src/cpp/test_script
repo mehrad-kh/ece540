@@ -1,0 +1,68 @@
+#!/bin/bash
+
+cd /homes/m/moham356/ece540/assign1/src/cpp
+
+echo "Start the Test"
+
+
+echo "t1 starts..."
+./hw1 ../../test/t1.tmp>file1
+./../../ref/assign1Ref ../../test/t1.tmp>ref1
+diff -b file1 ref1
+echo "t1 ends"
+
+echo "t2 starts..."
+./hw1 ../../test/t2.tmp>file2
+./../../ref/assign1Ref ../../test/t2.tmp>ref2
+diff -b file2 ref2
+echo "t2 ends"
+
+echo "t3 starts..."
+./hw1 ../../test/t3.tmp>file3
+./../../ref/assign1Ref ../../test/t3.tmp>ref3
+diff -b file3 ref3
+echo "t3 ends"
+
+echo "t4 starts..."
+./hw1 ../../test/t4.tmp>file4
+./../../ref/assign1Ref ../../test/t4.tmp>ref4
+diff -b file4 ref4
+echo "t4 ends"
+
+echo "t5 starts..."
+./hw1 ../../test/t5.tmp>file5
+./../../ref/assign1Ref ../../test/t5.tmp>ref5
+diff -b file5 ref5
+echo "t5 ends"
+
+echo "t6 starts..."
+./hw1 ../../test/t6.tmp>file6
+./../../ref/assign1Ref ../../test/t6.tmp>ref6
+diff -b file6 ref6
+echo "t6 ends"
+
+echo "t7 starts..."
+./hw1 ../../test/t7.tmp>file7
+./../../ref/assign1Ref ../../test/t7.tmp>ref7
+diff -b file7 ref7
+echo "t7 ends"
+
+echo "t15 starts..."
+./hw1 ../../test/t15.tmp>file15
+./../../ref/assign1Ref ../../test/t15.tmp>ref15
+diff -b file15 ref15
+echo "t15 ends"
+
+echo "t16 starts..."
+./hw1 ../../test/t16.tmp>file16
+./../../ref/assign1Ref ../../test/t16.tmp>ref16
+diff -b file16 ref16
+echo "t16 ends"
+
+echo "t17 starts..."
+./hw1 ../../test/t17.tmp>file17
+./../../ref/assign1Ref ../../test/t17.tmp>ref17
+diff -b file17 ref17
+echo "t17 ends"
+
+echo "End of the Test"

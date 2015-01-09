@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cd /homes/m/moham356/ece540/Lab2
+
+echo "Start the Test"
+
+for i in {1..65}
+	do
+		echo "t$i starts..."
+		assign2/assign2/hw2  test/t$i.tmp>file/file$i
+		test/assign2Ref test/t$i.tmp>ref/ref$i
+		diff -b file/file$i ref/ref$i
+		echo "t$i ends"
+	done
+
+echo "End of the Test"

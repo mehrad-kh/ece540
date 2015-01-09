@@ -1,0 +1,1264 @@
+#include "natloop.h"
+#include <iostream>
+#include <stack>
+#include <algorithm>	//std::sort
+#include <set>			// std::set
+#include <iterator>
+#include <stdio.h>
+extern "C" { 
+#include "print.h"
+}
+
+
+using std::cout;
+using std::endl;
+
+
+typedef std::vector<int> int_type;
+
+
+natloop::natloop(cfg * graph_, int head_, std::vector<int> & tails_, int loop_number_)
+{
+	// Constructor: Set all data members 
+	int i;
+	graph = graph_;
+	loop_number = loop_number_;
+	
+	head = graph->get_basicblk_addr(head_);
+	
+	head->set_loophead(loop_number);
+
+	int tails_num = tails_.size();
+
+
+	for (i = 0; i < tails_num; i++)
+	{
+		basicblk * newtail = graph->get_basicblk_addr(tails_[i]);
+		tails.push_back(newtail);
+		newtail->add_to_looptails(loop_number);
+	}
+		
+}
+
+
+
+void natloop::find_loop_blocks()
+{
+	// // find all nodes constituting my loop
+	std::stack<int> S;
+	std::set<int> loop_blocks_set;
+	loop_blocks_set.insert(head->get_bb_number());
+	loop_blocks.push_back(head->get_bb_number());
+
+	int tails_size = tails.size();
+
+	int i;
+	for (i = 0; i < tails_size; i++)
+	{
+		insert_on_stack(loop_blocks_set, S, tails[i]->get_bb_number());
+	} 
+
+	int_type pred;
+
+	while (!S.empty())
+	{
+		int v = S.top(); 
+		S.pop();
+		basicblk * node = graph->get_basicblk_addr(v);
+		pred = node->get_pred();
+
+		int pred_size = pred.size();
+
+		int j;
+		for (j = 0; j < pred_size; j++)
+		{
+			insert_on_stack(loop_blocks_set, S, pred[j]);
+		}
+	}
+
+
+}
+
+
+
+void natloop::insert_on_stack(std::set<int> & loop_blocks_set, std::stack<int> & S, int a)
+{
+	if (loop_blocks_set.find(a) == loop_blocks_set.end())
+	{
+		loop_blocks_set.insert(a);
+		loop_blocks.push_back(a);
+		S.push(a);
+	}
+
+}
+
+
+
+void natloop::print_natloop()
+{
+	// print the whole natrual loop as required format
+	cout << "natloop " << loop_number << endl;
+	print_backedge();
+	print_preheader();
+	print_loop_blocks();
+
+}
+
+
+
+void natloop::print_backedge()
+{
+	// print backedges head following list of tails
+	int head_bb_number = head->get_bb_number();
+	int_type tails_bb_number;
+
+	int tails_size = tails.size();
+	int i;
+	for (i = 0; i < tails_size; i++)
+		tails_bb_number.push_back(tails[i]->get_bb_number());
+
+	std::sort(tails_bb_number.begin(), tails_bb_number.end());
+
+	cout << "\t" << "backedge " << head_bb_number;
+
+	for (i = 0; i < tails_size; i++)
+	{
+		cout << " " << tails_bb_number[i];
+	} 
+	cout << endl;
+}
+
+
+
+void natloop::print_preheader()
+{
+	// print preheader number
+	int head_bb_number = head->get_bb_number();
+	int preheader = head_bb_number - 1;
+
+	cout << "\tpreheader " <<  preheader << endl;
+}
+
+
+
+void natloop::print_loop_blocks()
+{
+	// print bb_number of all nodes constituting this natloop
+	std::sort(loop_blocks.begin(), loop_blocks.end());
+
+	int loop_blocks_size = loop_blocks.size();
+
+	cout << "\tloop_blocks";
+
+	int i;
+	for (i = 0; i < loop_blocks_size; i++)
+	{
+		cout << " " << loop_blocks[i];
+	}
+	cout << endl;
+
+}
+
+
+
+void natloop::LICM(dfa * mydfa_, use_def * my_use_def_)
+{
+	int i;
+	mydfa = mydfa_;
+	my_use_def = my_use_def_;
+
+	// get loop blocks in bfs order 
+	BFS();
+	int loop_blocks_bfs_order_size = loop_blocks_bfs_order.size();
+	//cout << "\tloop blocks in BFS order";
+
+	for (i = 0; i < loop_blocks_bfs_order_size; i++)
+	{
+		//cout << " " << loop_blocks_bfs_order[i];
+	}
+	cout << endl;
+
+
+	// find exit blocks
+	find_exit_blocks();
+	std::set<int>::iterator it;
+
+	//cout << "\texit blocks";
+
+	for (it = exit_blocks.begin(); it != exit_blocks.end(); ++it)
+	{
+		//cout << " " << *it;
+	}
+	cout << endl;
+
+	//cout << "done finding exit blocks" << endl;
+	find_dom_exit_blocks();
+	//cout << "done finding dominator of exit blocks" << endl;
+
+	mark_invar();
+
+	//cout << "done marking invar instr" << endl;
+	cout << "loop " << loop_number <<": number of invariant instruction is --> " << invar_order.size() << endl;
+	int k = 0;
+	for (k =0; k <invar_order.size(); k++)
+		fprint_instr(stdout, invar_order[k] , 0);
+
+	mark_movable();
+
+	cout << "loop " << loop_number <<": number of movable instruction is --> " << movable_instr.size() << endl;
+	cout << "movable instruction" << endl;
+	int movable_size = movable_instr.size();
+
+	
+	for (k =0; k <movable_size; k++)
+		fprint_instr(stdout, movable_instr[k] , 0);
+
+
+	move_instr();
+
+}
+
+
+void natloop::BFS()
+{
+
+	int i,j;
+	std::sort(loop_blocks.begin(), loop_blocks.end());
+	std::set<int> visited;
+	std::vector<int> frontier;
+
+	int head_bb_number = head->get_bb_number();
+
+	visited.insert(head_bb_number);
+	frontier.push_back(head_bb_number);
+	loop_blocks_bfs_order.push_back(head_bb_number);
+
+	while (!frontier.empty())
+	{
+		std::vector<int> next;
+
+		int frontier_size = frontier.size();
+		for (i = 0; i < frontier_size; i++)
+		{
+			int visiting_bb_number = frontier[i];
+			basicblk * visiting_bb = graph->get_basicblk_addr(visiting_bb_number);
+			std::vector<int> succ = visiting_bb->get_succ();
+			sort(succ.begin(), succ.end());
+			std::vector<int> adj;
+			std::set_intersection(loop_blocks.begin(), loop_blocks.end(), succ.begin(), succ.end(), back_inserter(adj));
+
+			int adj_size = adj.size();
+			for (j = 0; j < adj_size; j++)
+			{
+				//cout << "here ??";
+				if (visited.find(adj[j]) == visited.end())
+				{
+					//cout << "there u go??";
+					visited.insert(adj[j]);
+					next.push_back(adj[j]);
+					loop_blocks_bfs_order.push_back(adj[j]);
+				}
+			}
+
+		}
+		frontier = next;
+
+	}
+
+}
+
+
+
+void natloop::find_exit_blocks()
+{
+	// go through each block of the loop. Get its successor list check if it has a 
+	// successor out of the blocklist of the loop. If that's the case then add it to 
+	// exit_blocks set otherwise go to the next block and so the same thing.
+	int loop_blocks_size = loop_blocks.size();
+	int i;
+
+	for (i = 0; i < loop_blocks_size; i++)
+	{
+		int curr_bb_number = loop_blocks[i];
+		basicblk * curr_bb = graph->get_basicblk_addr(curr_bb_number);
+		std::vector<int> succ = curr_bb->get_succ();
+		sort(succ.begin(), succ.end());
+		std::vector<int> diff;
+		std::set_difference(succ.begin(), succ.end(),loop_blocks.begin(), loop_blocks.end(), back_inserter(diff));
+
+		if (!diff.empty())
+		{
+			exit_blocks.insert(loop_blocks[i]);
+		}
+	}
+}
+
+void natloop::find_dom_exit_blocks()
+{
+	// finds all blocks that dominates exits of the loop
+	std::vector<int> dom_exits_list;
+	std::vector<int> dom_exits_temp;
+	std::vector<int> doms;
+	basicblk * bb;
+
+	int n = graph->get_n();
+
+	int i;
+	for (i = 0; i < n; i++)
+		dom_exits_list.push_back(i);
+
+	std::set<int>::iterator it;
+
+	for (it = exit_blocks.begin(); it != exit_blocks.end(); ++it)
+	{
+		bb = graph->get_basicblk_addr(*it);
+		doms = bb->get_dom();
+
+		sort(dom_exits_list.begin(), dom_exits_list.end());
+		sort(doms.begin(), doms.end());
+
+		std::set_intersection(dom_exits_list.begin(), dom_exits_list.end(), doms.begin(), doms.end(), back_inserter(dom_exits_temp));
+
+		dom_exits_list = dom_exits_temp;
+		dom_exits_temp.clear();
+	}
+
+	// now I have dom_exits_list. So go through that list 
+	// and add each element to the dom_exits set.
+
+	int dom_exits_list_size = dom_exits_list.size();
+	for (i = 0; i < dom_exits_list_size; i++)
+	{
+		dom_exits.insert(dom_exits_list[i]);
+	}
+}
+
+
+void natloop::mark_invar()
+{
+	// In breadth first order get each basicblk go through its intruction and 
+	// if its operand satisfies the condition add it to the set of invar_instr_set;
+	int loop_blocks_size = loop_blocks_bfs_order.size();
+	int i;
+	for (i = 0; i < loop_blocks_size; i++)
+	{
+		mark_invar_block(loop_blocks_bfs_order[i]);
+		
+	}
+
+}
+
+void natloop::mark_invar_block(int bb_number)
+{
+	// walks through each instruction of the basic block
+	basicblk * bb = graph->get_basicblk_addr(bb_number);
+	simple_instr * leader_instr = bb->get_leader_instr();
+	simple_instr * last_instr = bb->get_last_instr();
+
+	simple_instr * curr = leader_instr;
+
+	while (curr != last_instr->next)
+	{
+		mark_invar_inst(curr, bb_number);
+		curr = curr->next;
+	}
+
+	
+}
+
+
+void natloop::mark_invar_inst(simple_instr * s, int bb_number)
+{
+	struct invar_status info;
+	info.bb_number = bb_number;
+	info.dep_1 = NULL;
+	info.dep_2 = NULL;
+	info.movable = FALSE;
+
+	bool op_1 = FALSE;	
+	bool op_2 = FALSE; 
+
+	switch (s->opcode)
+	{
+		// instruction using two operands
+		//cases where both src1 and src2 are supposed to be used
+		case ADD_OP:
+		case SUB_OP:
+		case MUL_OP:
+		case DIV_OP:
+		case REM_OP:
+		case MOD_OP:
+		case AND_OP:
+		case IOR_OP:
+		case XOR_OP:
+		case ASR_OP:
+		case LSR_OP:
+		case LSL_OP:
+		case ROT_OP:
+		case SEQ_OP:
+		case SNE_OP:
+		case SL_OP:
+		case SLE_OP:
+		{
+			 
+			if (reach_defs_out(s, s->u.base.src1))
+			{
+				op_1 = TRUE;
+			}
+			else if ((info.dep_1 = reach_defs_in(s, s->u.base.src1)))
+			{
+				op_1 = TRUE;
+			}
+
+			if (reach_defs_out(s, s->u.base.src2))
+			{
+				op_2 = TRUE;
+			}
+			else if ((info.dep_2 = reach_defs_in(s, s->u.base.src2)))
+			{
+				op_2 = TRUE;
+			}
+
+			if (op_1 == TRUE && op_2 == TRUE)
+			{
+				invar_map_invarstat[s] = info;
+				invar_order.push_back(s);
+			}
+
+			break;
+		}
+
+
+		// cases where only one register (src1) will be used
+		case CPY_OP:
+		case CVT_OP:
+		case NEG_OP:
+		case NOT_OP:
+		{
+			if (reach_defs_out(s, s->u.base.src1))
+			{
+				op_1 = TRUE;
+			}
+			else if ((info.dep_1 = reach_defs_in(s, s->u.base.src1)))
+			{
+				op_1 = TRUE;
+			}
+
+			if (op_1 == TRUE)
+			{
+				invar_map_invarstat[s] = info;
+				invar_order.push_back(s);
+			}
+
+			break;
+		}
+
+		case LDC_OP:
+		{
+			// for sure can be marked as invar
+			invar_map_invarstat[s] = info;
+			invar_order.push_back(s);
+			break;
+		}
+
+		default: break;
+	}
+
+}
+
+
+bool natloop::reach_defs_out(simple_instr * s, simple_reg * opnd)
+{
+	// return true if all definitions of opnd that reach this instruction are in
+	// blocks whose indexes are not in loop_blocks
+	if (opnd->kind == TEMP_REG)
+		return FALSE;
+
+	std::string key;
+	std::vector<int> deflist;	
+
+	char buffer[20];
+
+	sprintf(buffer,"%x#%d", s, opnd->num);
+	key.assign(buffer);
+
+	deflist = my_use_def->use_def_chain[key];
+
+	int deflist_size = deflist.size();
+	std::vector<char> def_blocks;
+	
+
+	for (int i = 0; i < deflist_size; i++)
+	{
+		int def_bb_number = (mydfa->defnum_map_definfo[deflist[i]]).bb_number;
+		def_blocks.push_back(def_bb_number);
+	}
+
+	sort (def_blocks.begin(), def_blocks.end());
+
+	std::vector<int> intersect;
+	std::set_intersection(def_blocks.begin(), def_blocks.end(),loop_blocks.begin(), loop_blocks.end(), back_inserter(intersect));
+
+	if (intersect.empty())
+		return TRUE;
+
+	return FALSE;
+
+
+}
+
+
+
+simple_instr * natloop::reach_defs_in(simple_instr * s, simple_reg * opnd)
+{
+	// return true if there is exaclty one definition of opnd that reaches this instruction. then
+	// 1) get that definition and look it up in hash_map to find its instruction and basicblk number
+	// 2) check if the instruction found is itslef is invariant.
+	// 3) if YES then return the instruction address
+	//	else return NULL
+
+	//Assumption: definition of TEMP_REG ti is in the same basicblock as its use.
+	// "if" I can move ti = op1 * op2 then if for a use of ti I don't find its definition
+	// in the basic block where it is used that means it has been moved outside the BB by previous LICM
+	// so I retrun true.
+
+	simple_instr * curr; 
+
+	if (opnd->kind == TEMP_REG)
+	{
+		// start moving backward until I reach its definition. 
+		curr = s->prev;
+		bool find = FALSE;
+		while (!find)
+		{
+			switch(simple_op_format(curr->opcode))
+			{
+				case BASE_FORM:
+				{
+					if (curr->u.base.dst != NO_REGISTER && curr->u.base.dst->kind == TEMP_REG && curr->u.base.dst->num == opnd->num)
+					{
+						find = TRUE;
+					}
+
+					break;
+				}
+
+				case BJ_FORM: break;
+
+				case LDC_FORM:
+				{
+					if (curr->u.ldc.dst != NO_REGISTER && curr->u.ldc.dst->kind == TEMP_REG && curr->u.ldc.dst->num == opnd->num)
+					{
+						find = TRUE;
+					}
+
+					break;
+				}
+
+				case CALL_FORM:
+				{
+					if (curr->u.call.dst != NO_REGISTER && curr->u.call.dst->kind == TEMP_REG && curr->u.call.dst->num == opnd->num)
+					{
+						find = TRUE;
+					}
+
+					break;
+				}
+
+				case MBR_FORM: break;
+
+				case LABEL_FORM: break;
+			}
+
+			if (find == TRUE && invar_map_invarstat.find(curr) != invar_map_invarstat.end())
+			{
+				// if curr is itself an invariant instruction
+				return curr; 
+			} 
+
+			curr = curr->prev;
+		}
+		return NULL;
+	}
+
+
+	else
+	{
+		std::string key;
+		std::vector<int> deflist;	
+
+		char buffer[20];
+
+		sprintf(buffer,"%x#%d", s, opnd->num);
+		key.assign(buffer);
+
+		deflist = my_use_def->use_def_chain[key];
+
+		if (deflist.size() != 1)
+			return NULL;
+
+		// at this point we know that there is exactly one defenition reaching this instruction
+		// now get the instruction correponding to that definition
+
+		curr = (mydfa->defnum_map_definfo[deflist[0]]).instr;
+
+		if (invar_map_invarstat.find(curr) != invar_map_invarstat.end())
+		{
+			// if curr is itself an invariant instruction
+			return curr;
+		}
+
+		return NULL;
+	}
+
+}
+
+
+void natloop::mark_movable()
+{
+	// This function goes through each invariant instruction s defining v (invar_order)
+	// and determines if the instruction can be moved to the preheader.
+	// To do so, it needs to satisfy 4 conditions.
+	// condition 1) dependence instructions can be moved 
+	// condition 2) BB of s dominates all exits of L
+	// condition 3) v is defined exactly once thruogh the loop
+	// condition 4) all uses of v in L can "only" be reached by the definition of v in s
+
+	struct invar_status update_info;
+
+	int invar_order_size = invar_order.size();
+	simple_instr * s = NULL;
+	simple_reg * dst = NULL;
+	int i;
+
+	for (i = 0; i < invar_order_size; i++)
+	{
+	
+		s = invar_order[i];
+		switch(simple_op_format(s->opcode))
+		{
+			case BASE_FORM:
+			{
+				if (s->u.base.dst != NO_REGISTER)
+					dst = s->u.base.dst;
+				break;
+			}
+
+			case LDC_FORM:
+			{
+				if (s->u.ldc.dst != NO_REGISTER)
+					dst = s->u.ldc.dst;
+				break;
+			}
+
+			case CALL_FORM:
+			{
+				if (s->u.call.dst != NO_REGISTER)
+					dst = s->u.call.dst;
+				break;
+			}
+
+			// invariant instruction always have a dst register. 
+			// so it can not be of type BJ_FORM or MBR_FORM or LABEL_FORM
+			// defualt case should not happen anyways.
+			default: break; 
+		}
+
+		if (dst != NULL) //this always has to be true since each invar instruction has a dst register
+		{
+			// check if all 4 conditions are satisfied. if YES then mark it as movable
+			if (isMovable((invar_map_invarstat[s]).dep_1) && 
+				isMovable((invar_map_invarstat[s]).dep_2)&&
+				is_dom_exits((invar_map_invarstat[s]).bb_number) && 
+				is_one_def(dst) && only_def_reach(s, dst))
+			{
+				
+				update_info.bb_number = (invar_map_invarstat[s]).bb_number;
+				update_info.dep_1 = (invar_map_invarstat[s]).dep_1;
+				update_info.dep_2 = (invar_map_invarstat[s]).dep_2;
+				update_info.movable = TRUE;
+				invar_map_invarstat[s] = update_info;
+				movable_instr.push_back(s);
+			}
+			
+		}
+	}
+
+}
+
+bool natloop::isMovable(simple_instr * s)
+{
+	//cout << "in isMovable" <<endl;
+	//given an invariant instruction its return true if 
+	// that instruction is marked movable.
+	if (s == NULL)
+		return TRUE;
+
+	// get the status of s from invar_map_invarstat
+	return (invar_map_invarstat[s]).movable;
+}
+
+bool natloop::is_dom_exits(int invar_bb_number)
+{
+	//cout << "in is_dom_exits" <<endl;
+	//given a bb number of an invariant instruction
+	// return true if the correponding basic block 
+	// dominates all exit blocks of the loop
+	if (dom_exits.find(invar_bb_number) != dom_exits.end())
+		return TRUE;
+
+	return FALSE;
+}
+
+
+bool natloop::is_one_def(simple_reg * dst)
+{
+	//cout << "in is_one_def" <<endl;
+	// given a variable with number (op_num), this function
+	// checks if there exist exactly one definition of that variable 
+	// through out the loop. Invokes to check if condtion 3 is held 
+
+	if (dst->kind == TEMP_REG)
+		return TRUE;
+
+	int op_num = dst->num;
+
+	int loop_blocks_size = loop_blocks.size();
+	int count = 0;
+	int i;
+
+	for (i = 0; i < loop_blocks_size; i++)
+	{
+		count += get_number_def(loop_blocks[i], op_num);
+		if (count > 1)
+			return FALSE;
+	}
+	//cout << "doneee" <<endl;
+	return TRUE;
+}
+
+int natloop::get_number_def(int bb_number, int op_num)
+{
+	// returns number of defenition for op_num in the basic block
+	// corresponding to bb_number.it will be used for checking condition 3
+	basicblk * bb = graph->get_basicblk_addr(bb_number);
+
+	int result = 0;
+
+	simple_instr * leader_instr = bb->get_leader_instr();
+	simple_instr * last_instr = bb->get_last_instr();
+
+	simple_instr * curr = leader_instr;
+
+	while (curr != last_instr->next)
+	{
+		switch(simple_op_format(curr->opcode))
+		{
+			case BASE_FORM:
+			{
+				if (curr->u.base.dst != NO_REGISTER && curr->u.base.dst->num == op_num)
+				{
+					result++;
+				}
+				break;
+			}
+
+			case BJ_FORM: break;
+
+			case LDC_FORM:
+			{
+				if (curr->u.ldc.dst != NO_REGISTER && curr->u.ldc.dst->num == op_num)
+				{
+					result++;
+				}
+				break;
+			}
+
+			case CALL_FORM:
+			{
+				if (curr->u.call.dst != NO_REGISTER && curr->u.call.dst->num == op_num)
+				{
+					result++;
+				}
+				break;
+			}
+
+			case MBR_FORM: break;
+
+			case LABEL_FORM: break;
+		}
+		curr = curr->next;
+	}
+	return result;
+}
+
+
+bool natloop::only_def_reach(simple_instr * s, simple_reg * dst)
+{
+	//Invokes to check if condtion 4 is held 
+	int loop_blocks_size = loop_blocks.size();
+	int count = 0;
+	int op_num = 0;
+	int def_num = 0;
+	int i;
+
+	if (dst->kind == TEMP_REG)
+		return TRUE;
+
+	op_num = dst->num;
+	def_num = mydfa->instr_map_defnum[s];
+
+	for (i = 0; i < loop_blocks_size; i++)
+	{
+		if (!only_def_reach_helper(loop_blocks[i], def_num, op_num))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+bool natloop::only_def_reach_helper(int bb_number, int def_num, int op_num)
+{
+	// given a defenition (def_num) of op_num it checks that in
+	// "all" uses of op_num in the basic block def_num is the only 
+	// reaching definition for that use. If that's the case then
+	// returns TRUE otherwise FALSE
+	std::string key;
+	std::vector<int> deflist;	
+
+	char buffer[20];
+
+	basicblk * bb = graph->get_basicblk_addr(bb_number);
+
+	int result = 0;
+
+	simple_instr * leader_instr = bb->get_leader_instr();
+	simple_instr * last_instr = bb->get_last_instr();
+
+	simple_instr * s = leader_instr;
+
+	while(s != last_instr->next)
+	{
+		switch(s->opcode)
+		{
+			//cases where both src1 and src2 are supposed to be used
+			case STR_OP:
+			case MCPY_OP:
+			case ADD_OP:
+			case SUB_OP:
+			case MUL_OP:
+			case DIV_OP:
+			case REM_OP:
+			case MOD_OP:
+			case AND_OP:
+			case IOR_OP:
+			case XOR_OP:
+			case ASR_OP:
+			case LSR_OP:
+			case LSL_OP:
+			case ROT_OP:
+			case SEQ_OP:
+			case SNE_OP:
+			case SL_OP:
+			case SLE_OP:
+			{
+				if (s->u.base.src1 != NO_REGISTER && s->u.base.src1->num == op_num)
+				{
+					sprintf(buffer,"%x#%d", s, op_num);
+					key.assign(buffer);
+
+					deflist = my_use_def->use_def_chain[key];
+
+					if (deflist.size() == 1 && deflist[0] == def_num)
+						;
+					else
+						return FALSE;
+
+				}
+					
+
+				if (s->u.base.src2 != NO_REGISTER && s->u.base.src2->num == op_num)
+				{
+					sprintf(buffer,"%x#%d", s, op_num);
+					key.assign(buffer);
+
+					deflist = my_use_def->use_def_chain[key];
+
+					if (deflist.size() == 1 && deflist[0] == def_num)
+						;
+					else
+						return FALSE;
+				}
+
+				break;
+					
+			}
+
+			// cases where only one register (src1) will be used
+			case LOAD_OP:
+			case CPY_OP:
+			case CVT_OP:
+			case NEG_OP:
+			case NOT_OP:
+			case RET_OP: 	// src1 might be used so do a check
+			{
+				if (s->u.base.src1 != NO_REGISTER && s->u.base.src1->num == op_num)
+				{
+					sprintf(buffer,"%x#%d", s, op_num);
+					key.assign(buffer);
+
+					deflist = my_use_def->use_def_chain[key];
+
+					if (deflist.size() == 1 && deflist[0] == def_num)
+						;
+					else
+						return FALSE;
+				}
+
+				break;	
+			} 
+
+			case BTRUE_OP:
+			case BFALSE_OP:
+			case MBR_OP:
+			{
+				if (s->u.bj.src != NO_REGISTER && s->u.bj.src->num == op_num)
+				{
+					sprintf(buffer,"%x#%d", s, op_num);
+					key.assign(buffer);
+
+					deflist = my_use_def->use_def_chain[key];
+
+					if (deflist.size() == 1 && deflist[0] == def_num)
+						;
+					else
+						return FALSE;
+
+				}
+
+				break;	
+			}
+
+			case CALL_OP: // proc register
+			{
+				if (s->u.call.proc != NO_REGISTER && s->u.call.proc->num == op_num)
+				{
+					sprintf(buffer,"%x#%d", s, op_num);
+					key.assign(buffer);
+
+					deflist = my_use_def->use_def_chain[key];
+
+					if (deflist.size() == 1 && deflist[0] == def_num)
+						;
+					else
+						return FALSE;
+
+				}
+					
+
+				 /* print the list of arguments */
+			    int nargs = s->u.call.nargs;
+			    int n;
+			    if (nargs != 0) 
+			    {
+					for (n = 0; n < nargs; n++) 
+					{
+						//fprint_instr(stdout, s, 0);
+						//if (s)
+							//cout << "****************************************thiss not NUuuuLLL" << s->u.call.nargs << endl;
+					    if (s->u.call.args[n]->num == op_num)
+					    {
+					    	sprintf(buffer,"%x#%d", s, op_num);
+							key.assign(buffer);
+
+							deflist = my_use_def->use_def_chain[key];
+
+							if (deflist.size() == 1 && deflist[0] == def_num)
+								;
+							else
+								return FALSE;
+					    }	
+					    	
+					}
+			    }
+			    break;
+			}
+
+			default: ;// do nothing
+
+		}
+		s = s->next;
+	}
+
+	// if get here then every uses is reached only by that defenition
+	// so retrun TRUE
+
+	return TRUE;
+}
+
+
+void natloop::move_instr()
+{
+	// goes through moveable_instr list and move them to the preheader one by one.
+	int movable_instr_size = movable_instr.size();
+	simple_instr * s;
+
+	//get the preheader last instruction
+	int head_bb_number = head->get_bb_number();
+	basicblk * preheader = graph->get_basicblk_addr(head_bb_number - 1); 
+
+	simple_instr * preheader_last_instr = preheader->get_last_instr();
+
+	int i = 0;
+	for (i = 0; i < movable_instr_size; i++)
+	{
+		s = movable_instr[i];
+
+		// if s destination register is of TEMP_REG ti then  first I need 
+		// to create a new register of PSEUDO_REG and replace it with 
+		// the existing dst regiset. Then I need to go and find the only use
+		// of ti and replace it with the new register created.
+		//make_dst_pseudo
+
+		// then now move s
+
+		// first detach s 
+		simple_instr * s_next = s->next;
+		s->prev->next = s->next;
+		if (s->next)
+			s->next->prev = s->prev;
+
+		s->prev = preheader_last_instr;
+		s->next = preheader_last_instr->next;
+		preheader_last_instr->next = s;
+		s->next->prev = s;
+
+		preheader_last_instr = s;
+
+		simple_instr * copy_instr = NULL;
+		if ((copy_instr = make_dst_pseudo(s, s_next)))
+		{
+			//cout << "am I here ????????????????????????????????????????????????????" << endl;
+			copy_instr->next = preheader_last_instr->next;
+			preheader_last_instr->next = copy_instr;
+			copy_instr->next->prev = copy_instr;
+			copy_instr->prev = preheader_last_instr;
+			preheader_last_instr = copy_instr;
+		}
+	}
+}
+
+
+simple_instr * natloop::make_dst_pseudo(simple_instr * s, simple_instr * s_next)
+{
+	// this function checks if s destination register
+	// is of type PSEUDO_REG. If it is not then 
+	// 1) create a new PSUEDO_REG rj  
+	// 2) Then find the only use of ti and replace it with rj.
+	// 3) move s and copy instruction of rj = ti to the preheader
+
+
+	simple_reg * r = NULL;
+
+	switch(simple_op_format(s->opcode))
+	{
+		case BASE_FORM:
+		{
+			r = s->u.base.dst;
+			if ((r != NO_REGISTER) && (r->kind == PSEUDO_REG))
+				return NULL;
+			break;
+		}
+
+		case LDC_FORM:
+		{
+			r = s->u.ldc.dst;
+			if ((r != NO_REGISTER) && (r->kind == PSEUDO_REG))
+				return NULL;
+			break;
+		}
+
+		case CALL_FORM:
+		{
+			r = s->u.call.dst;
+			if ((r != NO_REGISTER) && (r->kind == PSEUDO_REG))
+				return NULL;
+			break;
+		}
+
+		// invariant instruction always have a dst register. 
+		// so it can not be of type BJ_FORM or MBR_FORM or LABEL_FORM
+		// defualt case should not happen anyways.
+		default: break; 
+	}
+
+	// before creating new instruction I'll go and check if the use of ti
+	// itself is used in a movable instruction then don't create additional
+	// instruction
+	if (is_my_use_movable(s, r, s_next))
+		return NULL;
+
+
+
+	// if I reach this point that means my register is of TEMP_REG.
+	// now I change its type to PSUEDO_REG
+	r->kind = PSEUDO_REG;
+	simple_reg * new_dst = new_register(r->var->type, TEMP_REG);
+
+	change_dst_reg(s, new_dst);
+
+	// create new copy intruction to store r = new_dst
+	simple_instr *copy_instr = new_instr(CPY_OP, new_dst->var->type);
+	copy_instr->u.base.dst = r;
+	copy_instr->u.base.src1 = new_dst;
+	copy_instr->u.base.src2 = NULL;
+
+
+	return copy_instr;
+
+}
+
+void natloop::change_dst_reg(simple_instr * s, simple_reg * new_dst)
+{
+	switch(simple_op_format(s->opcode))
+	{
+		case BASE_FORM:
+		{
+			s->u.base.dst = new_dst;
+			break;
+		}
+
+		case LDC_FORM:
+		{
+			s->u.ldc.dst = new_dst;
+			break;
+		}
+
+		case CALL_FORM:
+		{
+			s->u.call.dst = new_dst;
+			break;
+		}
+
+		// invariant instruction always have a dst register. 
+		// so it can not be of type BJ_FORM or MBR_FORM or LABEL_FORM
+		// defualt case should not happen anyways.
+		default: break; 
+	}
+	return;
+
+}
+
+
+bool natloop::is_my_use_movable (simple_instr * s, simple_reg * r, simple_instr * s_next)
+{
+	// before creating new instruction I'll go and check if the use of ti
+	// itself is used in a movable instruction then don't create additional
+	// instruction
+
+	simple_instr * curr = s_next;
+	int op_num = r->num;
+
+	bool find_use = FALSE;
+
+	if (r->kind == PSEUDO_REG)
+		cout << "it is PSEUDO" << endl;
+
+	else 
+		cout << "it is TEMP looking for" << op_num << endl;
+
+	fprint_instr(stdout, curr, 0);
+
+
+
+	// first we need to find type of the instruction
+	while(!find_use)
+	{
+		//fprint_instr(stdout, curr, 0);
+		switch(simple_op_format(curr->opcode))
+		{
+			
+			case BASE_FORM:
+			{
+				if ((curr->u.base.src1 != NO_REGISTER) && (curr->u.base.src1->num == op_num)) 
+				{
+					find_use = TRUE;
+				}
+
+				if ((curr->u.base.src2 != NO_REGISTER) && (curr->u.base.src2->num == op_num)) 
+				{
+					find_use = TRUE;
+				}
+				break;
+			}
+
+			case BJ_FORM:
+			{
+				if ((curr->u.bj.src != NO_REGISTER) && (curr->u.bj.src->num == op_num))
+				{
+					find_use = TRUE;
+				}
+
+				break;
+			}
+
+			case LDC_FORM: 
+			{
+				
+				break;
+			}
+
+			case CALL_FORM:
+			{
+				if (curr->u.call.proc->num == op_num)
+				{
+					find_use = TRUE;
+				}
+
+				int nargs = curr->u.call.nargs;
+				int i;
+				for (i = 0; i < nargs; i++)
+				{
+					if (curr->u.call.args[i]->num == op_num)
+					{
+						find_use = TRUE;
+						break;
+					}
+				}
+				break;
+			}
+
+			case MBR_FORM:
+			{
+				if ((curr->u.mbr.src != NO_REGISTER) && (curr->u.mbr.src->num == op_num))
+				{
+					find_use = TRUE;
+				}
+
+				break;
+			}
+
+			case LABEL_FORM: 
+			{
+				break;
+			}
+
+		}
+
+		if (find_use)
+			break;
+
+		curr = curr->next;
+	}
+
+	// if curr is in movable_instr list then return TRUE otherwise FALSE
+	int movable_instr_size = movable_instr.size();
+	for (int i = 0; i < movable_instr_size; i++)
+	{
+		if (movable_instr[i] == curr)
+			return TRUE;
+	}
+
+	return FALSE;
+}

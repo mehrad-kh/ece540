@@ -1,0 +1,62 @@
+loopcfg loop_label_first_instruction_2nd 14
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 1 0
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 7 1 2 3 4 5 6 7
+	successors 2 3 5
+	predecessors 2 1 8
+block 3
+	instrs 1 8
+	successors 1 11
+	predecessors 1 2
+block 4
+	instrs 1 9
+	successors 1 10
+	predecessors 0
+block 5
+	instrs 4 10 11 12 13
+	successors 2 6 8
+	predecessors 1 2
+block 6
+	instrs 1 14
+	successors 1 12
+	predecessors 1 5
+block 7
+	instrs 1 15
+	successors 1 9
+	predecessors 0
+block 8
+	instrs 2 16 17
+	successors 1 2
+	predecessors 1 5
+block 9
+	instrs 1 18
+	successors 1 10
+	predecessors 1 7
+block 10
+	instrs 1 19
+	successors 1 11
+	predecessors 2 4 9
+block 11
+	instrs 2 20 21
+	successors 1 13
+	predecessors 2 3 10
+block 12
+	instrs 5 22 23 24 25 26
+	successors 1 13
+	predecessors 1 6
+block 13
+	instrs 0
+	successors 0
+	predecessors 2 11 12
+natural_loops loop_label_first_instruction_2nd 1
+natloop 0
+	backedge 2 8
+	preheader 1
+	loop_blocks 2 5 8

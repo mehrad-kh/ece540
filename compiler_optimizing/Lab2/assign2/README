@@ -1,0 +1,6 @@
+COURSE: ECE540 Optimizing Compilers
+ASSIGNMET 2: Natural Loops
+Name: Mehrad Mohammadi Khalesi Fard
+Submission date: Monday, 3 February 2014
+
+The program is implemented in completely object oriented approach. It Consists of 5 classes "program", "procedure", "cfg" "natloop" and "basicblk" in order of top down prespective. Program class has a list of procedure where each single procedure has a control flow graph (cfg). Each cfg has a vertexlist that is a list of basicblk objects that are identified within the procedure. Also each cfg has a list of loop where it keep tracks of all the loops' head and tails. Each basicblk has a number of members including its bb_number, its first and last instruction number, immidiate dominator and three lists for keeping track of its successors, predeccessors and dominators. 

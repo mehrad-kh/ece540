@@ -1,0 +1,56 @@
+cfg main 9
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 4 0 1 2 3
+	successors 1 2
+	predecessors 1 0
+block 2
+	instrs 4 4 5 6 7
+	successors 2 3 4
+	predecessors 2 1 6
+block 3
+	instrs 3 8 9 10
+	successors 1 5
+	predecessors 1 2
+block 4
+	instrs 3 11 12 13
+	successors 1 5
+	predecessors 1 2
+block 5
+	instrs 1 14
+	successors 1 6
+	predecessors 2 3 4
+block 6
+	instrs 7 15 16 17 18 19 20 21
+	successors 2 2 7
+	predecessors 1 5
+block 7
+	instrs 3 22 23 24
+	successors 1 8
+	predecessors 1 6
+block 8
+	instrs 0
+	successors 0
+	predecessors 1 7
+idominators main 9
+block 0
+	idom 
+block 1
+	idom 0
+block 2
+	idom 1
+block 3
+	idom 2
+block 4
+	idom 2
+block 5
+	idom 2
+block 6
+	idom 5
+block 7
+	idom 6
+block 8
+	idom 7

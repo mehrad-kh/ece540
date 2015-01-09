@@ -1,0 +1,56 @@
+cfg func 9
+block 0
+	instrs 0
+	successors 1 1
+	predecessors 0
+block 1
+	instrs 6 0 1 2 3 4 5
+	successors 2 2 3
+	predecessors 1 0
+block 2
+	instrs 4 6 7 8 9
+	successors 1 4
+	predecessors 1 1
+block 3
+	instrs 4 10 11 12 13
+	successors 1 4
+	predecessors 1 1
+block 4
+	instrs 7 14 15 16 17 18 19 20
+	successors 2 5 6
+	predecessors 2 2 3
+block 5
+	instrs 4 21 22 23 24
+	successors 1 7
+	predecessors 1 4
+block 6
+	instrs 4 25 26 27 28
+	successors 1 7
+	predecessors 1 4
+block 7
+	instrs 2 29 30
+	successors 1 8
+	predecessors 2 5 6
+block 8
+	instrs 0
+	successors 0
+	predecessors 1 7
+idominators func 9
+block 0
+	idom
+block 1
+	idom 0
+block 2
+	idom 1
+block 3
+	idom 1
+block 4
+	idom 1
+block 5
+	idom 4
+block 6
+	idom 4
+block 7
+	idom 4
+block 8
+	idom 7

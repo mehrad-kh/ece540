@@ -1,0 +1,50 @@
+expressions infinity 3
+expr 1 15
+expr 2 42
+expr 3 50
+
+eval_ae_sets infinity 13
+eval_ae 0 000
+eval_ae 1 000
+eval_ae 2 100
+eval_ae 3 000
+eval_ae 4 000
+eval_ae 5 000
+eval_ae 6 000
+eval_ae 7 000
+eval_ae 8 001
+eval_ae 9 000
+eval_ae 10 000
+eval_ae 11 000
+eval_ae 12 000
+
+kill_ae_sets infinity 13
+kill_ae 0 000
+kill_ae 1 000
+kill_ae 2 111
+kill_ae 3 000
+kill_ae 4 000
+kill_ae 5 111
+kill_ae 6 001
+kill_ae 7 111
+kill_ae 8 001
+kill_ae 9 000
+kill_ae 10 001
+kill_ae 11 000
+kill_ae 12 000
+
+available_exprs infinity 13
+avail_exprs_out 0 000
+avail_exprs_out 1 000
+avail_exprs_out 2 100
+avail_exprs_out 3 100
+avail_exprs_out 4 100
+avail_exprs_out 5 000
+avail_exprs_out 6 000
+avail_exprs_out 7 000
+avail_exprs_out 8 001
+avail_exprs_out 9 001
+avail_exprs_out 10 000
+avail_exprs_out 11 000
+avail_exprs_out 12 000
+

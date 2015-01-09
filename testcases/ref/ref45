@@ -1,0 +1,45 @@
+expressions ae_test 4
+expr 1 0
+expr 2 20
+expr 3 27
+expr 4 36
+
+eval_ae_sets ae_test 11
+eval_ae 0 0000
+eval_ae 1 1000
+eval_ae 2 0000
+eval_ae 3 1000
+eval_ae 4 0000
+eval_ae 5 0100
+eval_ae 6 0010
+eval_ae 7 0000
+eval_ae 8 0000
+eval_ae 9 0001
+eval_ae 10 0000
+
+kill_ae_sets ae_test 11
+kill_ae 0 0000
+kill_ae 1 0111
+kill_ae 2 0000
+kill_ae 3 0000
+kill_ae 4 0000
+kill_ae 5 0000
+kill_ae 6 0000
+kill_ae 7 0000
+kill_ae 8 0000
+kill_ae 9 0000
+kill_ae 10 0000
+
+available_exprs ae_test 11
+avail_exprs_out 0 0000
+avail_exprs_out 1 1000
+avail_exprs_out 2 1000
+avail_exprs_out 3 1000
+avail_exprs_out 4 1000
+avail_exprs_out 5 1100
+avail_exprs_out 6 1110
+avail_exprs_out 7 1100
+avail_exprs_out 8 1100
+avail_exprs_out 9 1101
+avail_exprs_out 10 1000
+
